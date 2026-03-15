@@ -1,15 +1,31 @@
 from __future__ import annotations
 
 import json
+import sys
+import traceback
+from pathlib import Path
 from statistics import mean
 
 import streamlit as st
 
-from config import DEBUG_MODE
-from core.nlp_analyzer import aggregate_results
-from core.product_schema import Product
-from core.query_engine import run_all_queries
-from core.recommender import generate_recommendations
+PROJECT_ROOT = Path(__file__).resolve().parents[1]
+if str(PROJECT_ROOT) not in sys.path:
+    sys.path.insert(0, str(PROJECT_ROOT))
+
+try:
+    from config import DEBUG_MODE
+    from core.nlp_analyzer import aggregate_results
+    from core.product_schema import Product
+    from core.query_engine import run_all_queries
+    from core.recommender import generate_recommendations
+except Exception as exc:
+    st.set_page_config(page_title="AISLED", layout="wide")
+    st.error("AISLED failed to start because a required module could not be loaded.")
+    st.code("".join(traceback.format_exception_only(type(exc), exc)).strip())
+    st.caption(
+        "Check that the project root is deployed, dependencies are installed, and deployment secrets are configured."
+    )
+    st.stop()
 
 st.set_page_config(page_title="AISLED", layout="wide")
 
